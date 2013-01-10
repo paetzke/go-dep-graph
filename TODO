@@ -1,0 +1,2 @@
+- generate standard package list
+- handle empty multiline import properly 'import ()'
