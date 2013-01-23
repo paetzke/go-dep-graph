@@ -4,18 +4,18 @@ package main
 
 import (
 	"fmt"
+	"github.com/paetzke/go/xfile"
 	"io/ioutil"
 	"os"
 	"path"
 	"strings"
-	"github.com/paetzke/go/xfile"
 )
 
 var (
 	doPackagesOnly bool
 	doIgnoreStdLib bool
-	deps map[string] []string = make(map[string] []string)
-	stdLib []string
+	deps           map[string][]string = make(map[string][]string)
+	stdLib         []string
 )
 
 func fileFilter(f os.FileInfo) bool {
@@ -44,7 +44,7 @@ func handleImport(filename, imported string) {
 	imported = strings.Replace(imported, "\"", "", -1)
 	imported = strings.TrimSpace(imported)
 
-	if imported[0:2]== "//" || doIgnoreStdLib && containsString(stdLib, imported) {
+	if imported[0:2] == "//" || doIgnoreStdLib && containsString(stdLib, imported) {
 		return
 	}
 
@@ -69,8 +69,6 @@ func escapeChars(s string) string {
 	return s
 }
 
-
-
 func arrangeFilename(filename string) string {
 	if len(filename) == 0 {
 		return filename
@@ -80,14 +78,14 @@ func arrangeFilename(filename string) string {
 	pwd, _ := os.Getwd()
 	mayBeRelPath := path.Clean(path.Join(pwd, filename))
 	if strings.HasPrefix(mayBeRelPath, gopath) {
-		s :=  mayBeRelPath[len(gopath):]
+		s := mayBeRelPath[len(gopath):]
 		if s[0:1] == "/" {
 			filename = s[1:]
 		}
 	}
 	mayBeAbsPath := path.Clean(filename)
 	if strings.HasPrefix(mayBeAbsPath, gopath) {
-		s :=  mayBeAbsPath[len(gopath):]
+		s := mayBeAbsPath[len(gopath):]
 		if s[0:1] == "/" {
 			filename = s[1:]
 		}
@@ -97,7 +95,7 @@ func arrangeFilename(filename string) string {
 }
 
 func printDot() {
-	m := make(map[string] int)
+	m := make(map[string]int)
 	for file, importeds := range deps {
 		arrangeFile := arrangeFilename(file)
 		escArrangeFile := escapeChars(arrangeFile)
