@@ -3,8 +3,8 @@
 package main
 
 import (
-	"fmt"
 	"github.com/paetzke/go/xfile"
+	"github.com/paetzke/godot/godot"
 	"io/ioutil"
 	"os"
 	"path"
@@ -15,7 +15,7 @@ var (
 	doPackagesOnly bool
 	doIgnoreStdLib bool
 	deps           map[string][]string = make(map[string][]string)
-	stdLib         []string
+	stdLib         []string            = getStdLib()
 )
 
 func fileFilter(f os.FileInfo) bool {
@@ -62,13 +62,6 @@ func handleImport(filename, imported string) {
 	deps[filename] = append(imports, imported)
 }
 
-func escapeChars(s string) string {
-	s = strings.Replace(s, ".", "DOT", -1)
-	s = strings.Replace(s, "/", "SLASH", -1)
-	s = strings.Replace(s, "-", "HIVEN", -1)
-	return s
-}
-
 func arrangeFilename(filename string) string {
 	if len(filename) == 0 {
 		return filename
@@ -95,26 +88,20 @@ func arrangeFilename(filename string) string {
 }
 
 func printDot() {
-	m := make(map[string]int)
+	dotter, _ := godot.NewDotterEx(godot.OUT_DOT, godot.PROG_DOT, godot.GRAPH_DIRECTED,
+		false, false, "")
 	for file, importeds := range deps {
 		arrangeFile := arrangeFilename(file)
-		escArrangeFile := escapeChars(arrangeFile)
-
 		for _, imported := range importeds {
-			escImported := escapeChars(imported)
-			arrImported := arrangeFilename(imported)
-
-			m[fmt.Sprintf("\t%s -> %s\n", escArrangeFile, escImported)] = 0
-			m[fmt.Sprintf("\t%s[label=\"%s\"]\n", escImported, arrImported)] = 0
+			dotter.SetLink(arrangeFile, imported)
+			dotter.SetLabel(imported, arrangeFilename(imported))
 		}
-		m[fmt.Sprintf("\t%s[label=\"%s\"]\n", escArrangeFile, arrangeFile)] = 0
+		dotter.SetLabel(arrangeFile, arrangeFile)
 	}
 
-	fmt.Println("digraph deps {")
-	for key, _ := range m {
-		fmt.Println(key)
+	if err := dotter.Close(); err != nil {
+		panic(err)
 	}
-	fmt.Println("}")
 }
 
 func extractImports(filename string) {
@@ -139,7 +126,6 @@ func extractImports(filename string) {
 func main() {
 	doPackagesOnly = containsString(os.Args[1:], "-p")
 	doIgnoreStdLib = containsString(os.Args[1:], "-s")
-	stdLib = getStdLib()
 
 	for _, arg := range os.Args[1:] {
 		if strings.HasPrefix(arg, "-") {
