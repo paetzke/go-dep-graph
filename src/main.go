@@ -1,9 +1,8 @@
-// Copyright 2013, Friedrich Paetzke. All rights reserved.
+// Copyright 2013-2014, Friedrich Paetzke. All rights reserved.
 
 package main
 
 import (
-	"github.com/paetzke/go/xfile"
 	"github.com/paetzke/godot/godot"
 	"io/ioutil"
 	"os"
@@ -131,7 +130,7 @@ func main() {
 		if strings.HasPrefix(arg, "-") {
 			continue
 		}
-		for _, file := range xfile.GetFilenamesRecFunc(arg, fileFilter) {
+		for _, file := range GetFilenamesRecFunc(arg, fileFilter) {
 			extractImports(file)
 		}
 	}
