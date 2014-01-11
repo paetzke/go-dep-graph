@@ -1,0 +1,32 @@
+* go-dep-graph
+
+Copyright (c) 2013-2014, Friedrich Paetzke (f.paetzke@gmail.com)
+All rights reserved.
+
+Go-dep-graph can be used to produce visualisations of package and file dependencies of Go(lang) source code.
+
+Usage:
+
+#+BEGIN_SRC bash
+$ go-dep-graph [OPTIONS] directory...
+#+END_SRC
+
+Options:
+
+- p: show only packages, not files
+- s: don't show standard packages
+
+Go-dep-graph produces output that's suitable for graphviz. Just pipe the output to it.
+
+#+BEGIN_SRC bash
+$ ./go-dep-graph -p -s $GOPATH/src | dot -Tpdf -O
+#+END_SRC
+
+To install graphviz just type (for ubuntu/debian)
+
+#+BEGIN_SRC bash
+$ apt-get install graphviz
+#+END_SRC
+
+
+[[https://bitdeli.com/free][https://d2weczhvl823v0.cloudfront.net/paetzke/go-dep-graph/trend.png]]
