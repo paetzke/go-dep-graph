@@ -1,8 +1,5 @@
 * go-dep-graph
 
-Copyright (c) 2013-2014, Friedrich Paetzke (f.paetzke@gmail.com)
-All rights reserved.
-
 Go-dep-graph can be used to produce visualisations of package and file dependencies of Go(lang) source code.
 
 [[http://vanneva.com/static/images/go-dep-graph.ps.png]]
@@ -33,4 +30,7 @@ $ apt-get install graphviz
 #+END_SRC
 
 
-[[https://bitdeli.com/free][https://d2weczhvl823v0.cloudfront.net/paetzke/go-dep-graph/trend.png]]
+
+Copyright (c) 2013-2014, Friedrich Paetzke (paetzke@fastmail.fm)
+
+All rights reserved.
