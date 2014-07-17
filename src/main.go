@@ -13,6 +13,7 @@ import (
 var (
 	doPackagesOnly bool
 	doIgnoreStdLib bool
+	sourceDir      string
 	deps           map[string][]string = make(map[string][]string)
 	stdLib         []string            = getStdLib()
 )
@@ -83,6 +84,7 @@ func arrangeFilename(filename string) string {
 		}
 	}
 
+	filename = strings.TrimPrefix(filename, sourceDir)
 	return filename
 }
 
@@ -129,6 +131,14 @@ func main() {
 	for _, arg := range os.Args[1:] {
 		if strings.HasPrefix(arg, "-") {
 			continue
+		}
+		// set sourceDir
+		sourceDir = arg
+		if !strings.HasSuffix(sourceDir, "/") {
+			sourceDir += "/"
+		}
+		if !strings.HasSuffix(sourceDir, "src/") {
+			sourceDir += "src/"
 		}
 		for _, file := range GetFilenamesRecFunc(arg, fileFilter) {
 			extractImports(file)
