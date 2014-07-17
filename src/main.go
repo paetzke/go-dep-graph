@@ -47,6 +47,17 @@ func containsString(haystack []string, needle string) bool {
 	return false
 }
 
+func removeDuplicates(dups []string) (uniqs []string) {
+	set := make(map[string]bool)
+	for _, dup := range dups {
+		set[dup] = true
+	}
+	for uniq := range set {
+		uniqs = append(uniqs, uniq)
+	}
+	return
+}
+
 func handleImport(filename, imported string) {
 	imported = strings.TrimSpace(imported)
 
@@ -101,6 +112,13 @@ func arrangeFilename(filename string) string {
 func printDot() {
 	dotter, _ := godot.NewDotterEx(godot.OUT_DOT, godot.PROG_DOT, godot.GRAPH_DIRECTED,
 		false, false, "")
+
+	if doPackagesOnly {
+		for file, importeds := range deps {
+			deps[file] = removeDuplicates(importeds)
+		}
+	}
+
 	for file, importeds := range deps {
 		arrangeFile := arrangeFilename(file)
 		for _, imported := range importeds {
