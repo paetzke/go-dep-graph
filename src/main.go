@@ -38,28 +38,28 @@ func containsString(haystack []string, needle string) bool {
 }
 
 func handleImport(filename, imported string) {
-	if strings.HasPrefix(imported, "import ") {
-		imported = imported[7:]
-	}
-	imported = strings.Replace(imported, "\"", "", -1)
 	imported = strings.TrimSpace(imported)
 
-	if imported[0:2] == "//" || doIgnoreStdLib && containsString(stdLib, imported) {
+	if strings.HasPrefix(imported, "//") {
 		return
 	}
 
-	if strings.HasPrefix(imported, "_ ") {
-		imported = imported[2:]
+	// extract package name
+	split := strings.Split(imported, "\"")
+	if len(split) < 2 {
+		return
 	}
+	imported = split[1]
+
+	if doIgnoreStdLib && containsString(stdLib, imported) {
+		return
+	}
+
 	if doPackagesOnly {
 		filename = path.Dir(filename)
 	}
 
-	imports, ok := deps[filename]
-	if !ok {
-		imports = make([]string, 0)
-	}
-	deps[filename] = append(imports, imported)
+	deps[filename] = append(deps[filename], imported)
 }
 
 func arrangeFilename(filename string) string {
