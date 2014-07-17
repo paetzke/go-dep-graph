@@ -53,6 +53,23 @@ func GetFilenames(dir string) (filenames []string) {
 	return
 }
 
+func GetDirectoriesRec(dir string) (dirnames []string) {
+	dirnames = append(dirnames, dir)
+
+	files, err := ioutil.ReadDir(dir)
+	if err != nil {
+		return
+	}
+
+	for _, file := range files {
+		if file.IsDir() {
+			fPath := filepath.Join(dir, file.Name())
+			dirnames = append(dirnames, GetDirectoriesRec(fPath)...)
+		}
+	}
+	return
+}
+
 func GetFileExt(filename string) string {
 	xs := strings.Split(filename, ".")
 	idx := len(xs) - 1

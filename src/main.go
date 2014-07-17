@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"runtime"
 	"strings"
 )
 
@@ -15,8 +16,17 @@ var (
 	doIgnoreStdLib bool
 	sourceDir      string
 	deps           map[string][]string = make(map[string][]string)
-	stdLib         []string            = getStdLib()
+	stdLib         []string
 )
+
+func init() {
+	// populate stdLib by examining GOROOT
+	root := runtime.GOROOT() + "/src/pkg/"
+	stdLib = GetDirectoriesRec(root)
+	for i := range stdLib {
+		stdLib[i] = strings.TrimPrefix(stdLib[i], root)
+	}
+}
 
 func fileFilter(f os.FileInfo) bool {
 	if !f.IsDir() && strings.HasSuffix(f.Name(), ".go") {
