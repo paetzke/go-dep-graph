@@ -7,15 +7,26 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"runtime"
 	"strings"
 )
 
 var (
 	doPackagesOnly bool
 	doIgnoreStdLib bool
+	sourceDir      string
 	deps           map[string][]string = make(map[string][]string)
-	stdLib         []string            = getStdLib()
+	stdLib         []string
 )
+
+func init() {
+	// populate stdLib by examining GOROOT
+	root := runtime.GOROOT() + "/src/pkg/"
+	stdLib = GetDirectoriesRec(root)
+	for i := range stdLib {
+		stdLib[i] = strings.TrimPrefix(stdLib[i], root)
+	}
+}
 
 func fileFilter(f os.FileInfo) bool {
 	if !f.IsDir() && strings.HasSuffix(f.Name(), ".go") {
@@ -36,29 +47,40 @@ func containsString(haystack []string, needle string) bool {
 	return false
 }
 
-func handleImport(filename, imported string) {
-	if strings.HasPrefix(imported, "import ") {
-		imported = imported[7:]
+func removeDuplicates(dups []string) (uniqs []string) {
+	set := make(map[string]bool)
+	for _, dup := range dups {
+		set[dup] = true
 	}
-	imported = strings.Replace(imported, "\"", "", -1)
+	for uniq := range set {
+		uniqs = append(uniqs, uniq)
+	}
+	return
+}
+
+func handleImport(filename, imported string) {
 	imported = strings.TrimSpace(imported)
 
-	if imported[0:2] == "//" || doIgnoreStdLib && containsString(stdLib, imported) {
+	if strings.HasPrefix(imported, "//") {
 		return
 	}
 
-	if strings.HasPrefix(imported, "_ ") {
-		imported = imported[2:]
+	// extract package name
+	split := strings.Split(imported, "\"")
+	if len(split) < 2 {
+		return
 	}
+	imported = split[1]
+
+	if doIgnoreStdLib && containsString(stdLib, imported) {
+		return
+	}
+
 	if doPackagesOnly {
 		filename = path.Dir(filename)
 	}
 
-	imports, ok := deps[filename]
-	if !ok {
-		imports = make([]string, 0)
-	}
-	deps[filename] = append(imports, imported)
+	deps[filename] = append(deps[filename], imported)
 }
 
 func arrangeFilename(filename string) string {
@@ -83,12 +105,20 @@ func arrangeFilename(filename string) string {
 		}
 	}
 
+	filename = strings.TrimPrefix(filename, sourceDir)
 	return filename
 }
 
 func printDot() {
 	dotter, _ := godot.NewDotterEx(godot.OUT_DOT, godot.PROG_DOT, godot.GRAPH_DIRECTED,
 		false, false, "")
+
+	if doPackagesOnly {
+		for file, importeds := range deps {
+			deps[file] = removeDuplicates(importeds)
+		}
+	}
+
 	for file, importeds := range deps {
 		arrangeFile := arrangeFilename(file)
 		for _, imported := range importeds {
@@ -129,6 +159,14 @@ func main() {
 	for _, arg := range os.Args[1:] {
 		if strings.HasPrefix(arg, "-") {
 			continue
+		}
+		// set sourceDir
+		sourceDir = arg
+		if !strings.HasSuffix(sourceDir, "/") {
+			sourceDir += "/"
+		}
+		if !strings.HasSuffix(sourceDir, "src/") {
+			sourceDir += "src/"
 		}
 		for _, file := range GetFilenamesRecFunc(arg, fileFilter) {
 			extractImports(file)
