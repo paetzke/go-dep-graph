@@ -2,7 +2,7 @@
 
 Go-dep-graph can be used to produce visualisations of package and file dependencies of Go(lang) source code.
 
-[[http://vanneva.com/static/images/go-dep-graph.ps.png]]
+[[http://paetzke.me/static/images/go-dep-graph.ps.png]]
 
 Usage:
 
@@ -21,7 +21,7 @@ Go-dep-graph produces output that's suitable for graphviz. Just pipe the output 
 $ ./go-dep-graph -p -s $GOPATH/src | dot -Tpdf -O
 #+END_SRC
 
-[[http://vanneva.com/static/images/go-dep-graph.p.png]]
+[[http://paetzke.me/static/images/go-dep-graph.p.png]]
 
 To install graphviz just type (for Ubuntu/Debian)
 
@@ -30,7 +30,16 @@ $ apt-get install graphviz
 #+END_SRC
 
 
+** Bugs and improvements
 
-Copyright (c) 2013-2014, Friedrich Paetzke (paetzke@fastmail.fm)
+Feel free to open tickets or send pull requests with improvements.
+These [[https://github.com/paetzke/go-dep-graph/graphs/contributors][contributors]] have done so.
 
-All rights reserved.
+
+** Copyright
+
+Copyright (c) 2013-2015 Friedrich Pätzke.
+See [[LICENSE]] for further details.
+
+
+Greetings. [[https://twitter.com/paetzke][Friedrich]].
